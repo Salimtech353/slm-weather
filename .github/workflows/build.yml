@@ -18,15 +18,22 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Make gradlew executable
-      run: chmod +x gradlew || true
+    # ১. gradlew ফাইল না থাকলে অটোমেটিক তৈরি করার জন্য
+    - name: Setup Gradle Wrapper if missing
+      run: |
+        if [ ! -f gradlew ]; then
+          echo "gradlew not found! Generating wrapper..."
+          gradle wrapper
+        fi
+        chmod +x gradlew
 
+    # ২. Debug APK বিল্ড
     - name: Build Debug APK
       run: ./gradlew assembleDebug
 
-    - name: Upload APK
+    # ৩. APK ফাইল আপলোড
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Weather-App-APK
