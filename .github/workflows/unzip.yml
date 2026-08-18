@@ -1,0 +1,42 @@
+name: Extract ZIP and Setup Project
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract ZIP
+        run: |
+          unzip slm-weather.zip -d extracted
+
+      - name: Copy files safely
+        run: |
+          rsync -av \
+          --exclude='.git' \
+          --exclude='.workspace' \
+          --exclude='node_modules' \
+          extracted/ ./
+          rm -rf extracted
+          rm -f slm-weather.zip
+
+      - name: Make gradlew executable
+        run: |
+          chmod +x gradlew || true
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto Unzip and Project Setup" || echo "No changes to commit"
+          git push
+          
