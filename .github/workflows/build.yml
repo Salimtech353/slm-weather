@@ -10,16 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # actions/checkout আপডেট করা হয়েছে
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    # setup-java@v4 পরিবর্তন করে setup-java@v5 এবং JDK 21 দেওয়া হয়েছে
+    - name: Set up JDK 21
+      uses: actions/setup-java@v5
       with:
-        java-version: '17'
+        java-version: '21'
         distribution: 'temurin'
 
-    # ১. gradlew ফাইল না থাকলে অটোমেটিক তৈরি করার জন্য
     - name: Setup Gradle Wrapper if missing
       run: |
         if [ ! -f gradlew ]; then
@@ -28,11 +29,9 @@ jobs:
         fi
         chmod +x gradlew
 
-    # ২. Debug APK বিল্ড
     - name: Build Debug APK
       run: ./gradlew assembleDebug
 
-    # ৩. APK ফাইল আপলোড
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
