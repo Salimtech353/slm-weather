@@ -1,0 +1,7 @@
+{
+  "name": "SLM Weather",
+  "description": "Smart, advanced, glassmorphic weather forecasting app with live OpenWeatherMap API integration, hourly and 7-day forecasts, air quality index, day/night tracker, and weather radar details.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
