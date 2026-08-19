@@ -13,12 +13,14 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4.2.2
 
-    - name: Set up JDK 21
+    # Java 17 সেটআপ করা (যা app/build.gradle.kts এর সাথে মিল রাখা হয়েছে)
+    - name: Set up JDK 17
       uses: actions/setup-java@v5
       with:
-        java-version: '21'
+        java-version: '17'
         distribution: 'temurin'
 
+    # Gradle Wrapper প্রস্তুত করা
     - name: Setup Gradle Wrapper if missing
       run: |
         if [ ! -f gradlew ]; then
@@ -27,31 +29,55 @@ jobs:
         fi
         chmod +x gradlew
 
-    # ১. সঠিক পাথে debug.keystore জেনারেট করা (Root এবং app/ উভয় জায়গায় কপি করা)
+    # খালি .env এবং .env.example ফাইল তৈরি (secrets প্লাগইনের জন্য)
+    - name: Create Dummy Environment Files
+      run: |
+        touch .env
+        touch .env.example
+
+    # Debug Keystore জেনারেট করা
     - name: Generate Debug Keystore
       run: |
         keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-        cp debug.keystore app/debug.keystore
 
-    # ২. app/src/main/res/ ও app/ ফোল্ডারে google-services.json কপি করা
+    # সঠিক Package Name দিয়ে google-services.json জেনারেট করা
     - name: Generate Dummy google-services.json
       run: |
         mkdir -p app/src/debug
-        mkdir -p app/src/release
-        
-        JSON_CONTENT='{"project_info":{"project_number":"000000000000","project_id":"dummy-project","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:000000000000:android:0000000000000000","android_client_info":{"package_name":"com.example.slmweather"}},"api_key":[{"current_key":"dummy_api_key"}]}],"configuration_version":"1"}'
-        
+        JSON_CONTENT='{
+          "project_info": {
+            "project_number": "123456789012",
+            "project_id": "slm-weather",
+            "storage_bucket": "slm-weather.appspot.com"
+          },
+          "client": [
+            {
+              "client_info": {
+                "mobilesdk_app_id": "1:123456789012:android:1234567890123456",
+                "android_client_info": {
+                  "package_name": "com.aistudio.slmweather.kxqvtr"
+                }
+              },
+              "api_key": [
+                {
+                  "current_key": "AIzaSyDummyKeyForBuildPurposeOnly12345"
+                }
+              ]
+            }
+          ],
+          "configuration_version": "1"
+        }'
         echo "$JSON_CONTENT" > app/google-services.json
         echo "$JSON_CONTENT" > app/src/debug/google-services.json
 
-    # ৩. Debug APK বিল্ড
+    # Debug APK বিল্ড
     - name: Build Debug APK
       run: ./gradlew assembleDebug
 
-    # ৪. APK ফাইল আপলোড
+    # জেনারেট হওয়া APK আপলোড করা
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Weather-App-APK
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: app/build/outputs/apk/debug/*.apk
         
