@@ -27,17 +27,22 @@ jobs:
         fi
         chmod +x gradlew
 
-    # ১. কাস্টম debug.keystore ফাইল জেনারেট করা
+    # ১. সঠিক পাথে debug.keystore জেনারেট করা (Root এবং app/ উভয় জায়গায় কপি করা)
     - name: Generate Debug Keystore
       run: |
         keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+        cp debug.keystore app/debug.keystore
 
-    # ২. ডমি google-services.json ফাইল তৈরি (যদি না থাকে)
-    - name: Generate Dummy google-services.json if missing
+    # ২. app/src/main/res/ ও app/ ফোল্ডারে google-services.json কপি করা
+    - name: Generate Dummy google-services.json
       run: |
-        if [ ! -f app/google-services.json ]; then
-          echo '{"project_info":{"project_number":"000000000000","project_id":"dummy-project","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:000000000000:android:0000000000000000","android_client_info":{"package_name":"com.example.slmweather"}},"api_key":[{"current_key":"dummy_api_key"}]}],"configuration_version":"1"}' > app/google-services.json
-        fi
+        mkdir -p app/src/debug
+        mkdir -p app/src/release
+        
+        JSON_CONTENT='{"project_info":{"project_number":"000000000000","project_id":"dummy-project","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:000000000000:android:0000000000000000","android_client_info":{"package_name":"com.example.slmweather"}},"api_key":[{"current_key":"dummy_api_key"}]}],"configuration_version":"1"}'
+        
+        echo "$JSON_CONTENT" > app/google-services.json
+        echo "$JSON_CONTENT" > app/src/debug/google-services.json
 
     # ৩. Debug APK বিল্ড
     - name: Build Debug APK
