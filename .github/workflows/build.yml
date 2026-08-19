@@ -64,9 +64,9 @@ jobs:
         echo "$JSON_CONTENT" > app/google-services.json
         echo "$JSON_CONTENT" > app/src/debug/google-services.json
 
-    # Debug APK বিল্ড
+    # Debug APK বিল্ড (সব টেস্ট সঠিকভাবে স্কিপ করবে)
     - name: Build Debug APK
-      run: ./gradlew assembleDebug -x test -x testDebugUnitTest -x kspDebugUnitTest --no-daemon
+      run: ./gradlew assembleDebug -x test --no-daemon
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
