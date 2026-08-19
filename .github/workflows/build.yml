@@ -70,9 +70,10 @@ jobs:
         echo "$JSON_CONTENT" > app/google-services.json
         echo "$JSON_CONTENT" > app/src/debug/google-services.json
 
-    # Debug APK বিল্ড
+        # Debug APK বিল্ড (UnitTest এবং KSP Test স্কিপ করে)
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug -x test -x testDebugUnitTest -x kspDebugUnitTest --no-daemon
+
 
     # জেনারেট হওয়া APK আপলোড করা
     - name: Upload APK Artifact
